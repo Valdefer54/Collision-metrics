@@ -27,6 +27,21 @@ export interface ChartConfig {
   bins?: number;
   xMin?: number;
   xMax?: number;
+  interpretation?: string; // physics explanation shown below each chart pair
+}
+
+export interface DescriptiveStats {
+  count: number;
+  mean: number;
+  std: number;
+  min: number;
+  max: number;
+}
+
+export interface ChiSquaredResult {
+  chi2: number;
+  ndf: number;
+  chi2PerNdf: number;
 }
 
 export interface RawRow {

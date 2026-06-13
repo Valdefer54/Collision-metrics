@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { DatasetConfig, RawRow } from "@/lib/types";
 import HistogramChart from "./charts/HistogramChart";
+import DescriptiveStats from "./stats/DescriptiveStats";
+import AgreementBadge from "./stats/AgreementBadge";
+import InterpretationCard from "./InterpretationCard";
 import LoadingState from "./ui/LoadingState";
+import { computeStats } from "@/lib/stats";
+import { computeChiSquared } from "@/lib/chiSquared";
+import { buildHistogram } from "@/lib/histogram";
 
 interface Props {
   dataset: DatasetConfig;
@@ -16,6 +22,7 @@ interface DataState {
   mcDone: boolean;
   error: string | null;
   isMock: boolean;
+  retryCount: number;
 }
 
 const MEASURED_COLOR = "#38bdf8"; // sky-400
@@ -29,6 +36,7 @@ export default function DatasetView({ dataset }: Props) {
     mcDone: false,
     error: null,
     isMock: false,
+    retryCount: 0,
   });
   const abortRef = useRef<AbortController | null>(null);
 
@@ -37,7 +45,7 @@ export default function DatasetView({ dataset }: Props) {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    setData({ measured: [], mc: [], measuredDone: false, mcDone: false, error: null, isMock: false });
+    setData((prev) => ({ measured: [], mc: [], measuredDone: false, mcDone: false, error: null, isMock: false, retryCount: prev.retryCount }));
 
     (async () => {
       try {
@@ -98,9 +106,9 @@ export default function DatasetView({ dataset }: Props) {
     })();
 
     return () => controller.abort();
-  }, [dataset.id]);
+  }, [dataset.id, data.retryCount]);
 
-  const totalExpected = 40000; // 20k measured + 20k mc
+  const totalExpected = 40000;
   const received = data.measured.length + data.mc.length;
   const progress = Math.min(100, Math.round((received / totalExpected) * 100));
   const bothDone = data.measuredDone && data.mcDone;
@@ -109,9 +117,24 @@ export default function DatasetView({ dataset }: Props) {
   if (data.error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <p className="text-red-400 font-semibold">Failed to load data</p>
-          <p className="text-slate-500 text-sm mt-1">{data.error}</p>
+        <div className="max-w-xl w-full bg-red-950/30 border border-red-500/30 rounded-xl p-6">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-red-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+            <div className="flex-1 min-w-0">
+              <p className="text-red-300 font-semibold text-sm">Failed to load dataset "{dataset.name}"</p>
+              <p className="text-slate-300 text-xs mt-2 font-mono break-all whitespace-pre-wrap leading-relaxed border border-slate-700 bg-slate-900/60 rounded px-3 py-2">
+                {data.error}
+              </p>
+              <button
+                onClick={() => setData((prev) => ({ ...prev, error: null, retryCount: prev.retryCount + 1 }))}
+                className="mt-3 text-xs text-red-400 hover:text-red-300 underline underline-offset-2"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -153,28 +176,46 @@ export default function DatasetView({ dataset }: Props) {
         </div>
       </div>
 
-      {/* Side-by-side charts — each row shows the same observable for real vs MC */}
-      <div className="flex flex-col gap-8">
-        {dataset.charts.map((chartCfg) => (
-          <div key={chartCfg.id} className="grid grid-cols-2 gap-4">
-            {/* Real data */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-              <HistogramChart
-                rows={data.measured}
-                config={chartCfg}
-                color={MEASURED_COLOR}
-              />
+      {/* Chart rows — each row: histograms + stats + χ² + interpretation */}
+      <div className="flex flex-col gap-10">
+        {dataset.charts.map((chartCfg) => {
+          const unit = dataset.columns.find((c) => c.key === chartCfg.xColumn)?.unit ?? "";
+          const measuredStats = computeStats(data.measured, chartCfg.xColumn);
+          const mcStats = computeStats(data.mc, chartCfg.xColumn);
+
+          const bins = chartCfg.bins ?? 60;
+          const xMin = chartCfg.xMin ?? 0;
+          const xMax = chartCfg.xMax ?? 500;
+          const measuredHist = buildHistogram(data.measured, chartCfg.xColumn, bins, xMin, xMax);
+          const mcHist = buildHistogram(data.mc, chartCfg.xColumn, bins, xMin, xMax);
+          const agreement = computeChiSquared(measuredHist, mcHist);
+
+          return (
+            <div key={chartCfg.id} className="flex flex-col gap-2">
+              {/* Histograms side by side */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+                  <HistogramChart rows={data.measured} config={chartCfg} color={MEASURED_COLOR} />
+                  <DescriptiveStats stats={measuredStats} unit={unit} color="sky" />
+                </div>
+                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+                  <HistogramChart rows={data.mc} config={chartCfg} color={MC_COLOR} />
+                  <DescriptiveStats stats={mcStats} unit={unit} color="orange" />
+                </div>
+              </div>
+
+              {/* χ² agreement indicator */}
+              {bothDone && agreement.ndf > 0 && (
+                <AgreementBadge result={agreement} />
+              )}
+
+              {/* Physics interpretation */}
+              {chartCfg.interpretation && (
+                <InterpretationCard text={chartCfg.interpretation} />
+              )}
             </div>
-            {/* Monte Carlo */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-              <HistogramChart
-                rows={data.mc}
-                config={chartCfg}
-                color={MC_COLOR}
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
