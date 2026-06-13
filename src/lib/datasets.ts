@@ -10,7 +10,7 @@
 
 import type { DatasetConfig } from "./types";
 
-const BUCKET = process.env.B2_BUCKET_NAME ?? "your-bucket-name";
+const BUCKET = process.env.B2_BUCKET_NAME ?? "CollisionMetricsCERN13TeVcollisionopendata";
 
 export const DATASETS: DatasetConfig[] = [
   {
@@ -19,8 +19,8 @@ export const DATASETS: DatasetConfig[] = [
     shortName: "2L",
     description: "Events with two leptons — dimuon/dielectron channel from the CMS detector.",
     physics: "The invariant mass of the lepton pair reconstructs the Z boson peak (~91 GeV).",
-    measuredPath: `s3://${BUCKET}/2leptons_data.parquet`,
-    mcPath: `s3://${BUCKET}/2leptons_mc.parquet`,
+    measuredPath: `s3://${BUCKET}/2lep/Data/Gold/Data.parquet`,
+    mcPath: `s3://${BUCKET}/2lep/MC/Gold/Data.parquet`,
     columns: [
       { key: "M",   label: "Invariant Mass", unit: "GeV/c²" },
       { key: "pt1", label: "pT lepton 1",    unit: "GeV/c"  },
@@ -62,8 +62,8 @@ export const DATASETS: DatasetConfig[] = [
     shortName: "3L",
     description: "Events with three leptons — tri-lepton channel from the CMS detector.",
     physics: "This channel is sensitive to processes beyond the Standard Model.",
-    measuredPath: `s3://${BUCKET}/3leptons_data.parquet`,
-    mcPath: `s3://${BUCKET}/3leptons_mc.parquet`,
+    measuredPath: `s3://${BUCKET}/3lep/Data/Gold/Data.parquet`,
+    mcPath: `s3://${BUCKET}/3lep/MC/Gold/Data.parquet`,
     columns: [
       { key: "M",   label: "Invariant Mass", unit: "GeV/c²" },
       { key: "pt1", label: "pT lepton 1",    unit: "GeV/c"  },
@@ -104,8 +104,8 @@ export const DATASETS: DatasetConfig[] = [
     shortName: "1J",
     description: "Events with one large-radius jet — boosted object reconstruction.",
     physics: "Wide-radius jets capture the decay products of massive high-momentum particles.",
-    measuredPath: `s3://${BUCKET}/1largerjet_data.parquet`,
-    mcPath: `s3://${BUCKET}/1largerjet_mc.parquet`,
+    measuredPath: `s3://${BUCKET}/1largeRjet1lep/Data/Gold/Data.parquet`,
+    mcPath: `s3://${BUCKET}/1largeRjet1lep/MC/Gold/Data.parquet`,
     columns: [
       { key: "M",  label: "Jet mass", unit: "GeV/c²" },
       { key: "pt", label: "Jet pT",   unit: "GeV/c"  },
@@ -145,8 +145,8 @@ export const DATASETS: DatasetConfig[] = [
     shortName: "γγ",
     description: "Events with two photons — Higgs boson search channel H→γγ.",
     physics: "The diphoton invariant mass peak at ~125 GeV is the signature of the Higgs boson.",
-    measuredPath: `s3://${BUCKET}/gammagamma_data.parquet`,
-    mcPath: `s3://${BUCKET}/gammagamma_mc.parquet`,
+    measuredPath: `s3://${BUCKET}/Gamma-Gamma/Data/Gold/Data.parquet`,
+    mcPath: `s3://${BUCKET}/Gamma-Gamma/MC/Gold/Data.parquet`,
     columns: [
       { key: "M",   label: "Invariant Mass", unit: "GeV/c²" },
       { key: "pt1", label: "pT photon 1",    unit: "GeV/c"  },
@@ -186,8 +186,8 @@ export const DATASETS: DatasetConfig[] = [
     shortName: "4L",
     description: "Events with four leptons — the golden channel H→ZZ→4l from CMS.",
     physics: "Low background rate; the ~125 GeV peak is direct evidence of the Higgs boson.",
-    measuredPath: `s3://${BUCKET}/4leptons_data.parquet`,
-    mcPath: `s3://${BUCKET}/4leptons_mc.parquet`,
+    measuredPath: `s3://${BUCKET}/4lep/Data/Gold/Data.parquet`,
+    mcPath: `s3://${BUCKET}/4lep/MC/Gold/Data.parquet`,
     columns: [
       { key: "M",   label: "Invariant Mass", unit: "GeV/c²" },
       { key: "pt1", label: "pT lepton 1",    unit: "GeV/c"  },
