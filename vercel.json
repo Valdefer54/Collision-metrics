@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "src/app/api/dataset/[id]/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}

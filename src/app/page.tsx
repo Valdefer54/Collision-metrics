@@ -1,65 +1,56 @@
-import Image from "next/image";
+import DatasetCard from "@/components/DatasetCard";
+import { DATASETS } from "@/lib/datasets";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen bg-slate-950 text-white">
+      {/* Hero */}
+      <div className="relative overflow-hidden border-b border-slate-800">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.12)_0%,_transparent_60%)]" />
+        <div className="relative max-w-5xl mx-auto px-6 py-20 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-300 text-xs font-medium mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            CERN Open Data — CMS Detector
+          </div>
+          <h1 className="text-5xl font-black tracking-tight mb-4">
+            Collision<span className="text-blue-400">Metrics</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            Interactive exploration of open LHC particle collision data.
+            Compare real CMS detector measurements against Monte Carlo simulations in real time.
+          </p>
+          <p className="text-slate-600 text-sm mt-4">
+            20 000 events per sample · Live streaming from S3 · Histograms computed in the browser
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {/* Dataset selector */}
+      <div className="max-w-5xl mx-auto px-6 py-14">
+        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-6">
+          Select a collision channel
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {DATASETS.map((ds) => (
+            <DatasetCard key={ds.id} dataset={ds} />
+          ))}
         </div>
-      </main>
-    </div>
+      </div>
+
+      <footer className="border-t border-slate-900 max-w-5xl mx-auto px-6 py-8 text-center">
+        <p className="text-slate-600 text-sm">
+          Data from{" "}
+          <a
+            href="https://opendata.cern.ch"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-slate-500 hover:text-blue-400 transition-colors"
+          >
+            CERN Open Data Portal
+          </a>
+          {" · "}Visualized with Next.js, DuckDB, and Recharts
+        </p>
+      </footer>
+    </main>
   );
 }
