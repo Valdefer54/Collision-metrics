@@ -42,7 +42,7 @@ export default async function DatasetPage({ params }: Props) {
       <div className="max-w-7xl mx-auto px-6 pt-8 pb-2">
         <div className="grid grid-cols-2 gap-4 mb-2">
           <p className="text-center text-xs font-semibold text-sky-400 uppercase tracking-widest">
-            ← Real Data (CMS)
+            ← Real Data (ATLAS)
           </p>
           <p className="text-center text-xs font-semibold text-orange-400 uppercase tracking-widest">
             Monte Carlo Simulation →

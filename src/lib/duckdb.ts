@@ -25,18 +25,21 @@ function classifyS3Error(err: unknown, s3Path: string): Error {
     (err as { name?: string })?.name ??
     '';
 
-  if (code === 'NoSuchKey') return new Error(`File not found in bucket: ${s3Path}`);
-  if (code === 'NoSuchBucket') return new Error(`Bucket does not exist: ${s3Path.split('/')[2]}`);
-  if (code === 'AccessDenied' || code === 'InvalidAccessKeyId')
-    return new Error(`S3 access denied (${code}) — check B2_ACCESS_KEY_ID / B2_SECRET_ACCESS_KEY`);
-  if (code === 'SignatureDoesNotMatch')
-    return new Error(`S3 signature mismatch — B2_SECRET_ACCESS_KEY may be wrong`);
-  if (raw.includes('ECONNREFUSED') || raw.includes('ENOTFOUND') || raw.includes('fetch failed'))
-    return new Error(`Cannot reach S3 endpoint "${process.env.B2_ENDPOINT ?? '(not set)'}" — ${raw}`);
-  if (!process.env.B2_ENDPOINT)
-    return new Error(`B2_ENDPOINT env var is not set`);
+  // Log full details server-side only
+  console.error(`[storage] error for ${s3Path} (${code || 'unknown'}): ${raw}`);
 
-  return new Error(`S3 error for ${s3Path}: ${raw}${code ? ` (${code})` : ''}`);
+  if (code === 'NoSuchKey') return new Error('Data file not found in storage.');
+  if (code === 'NoSuchBucket') return new Error('Storage bucket not found. Check server configuration.');
+  if (code === 'AccessDenied' || code === 'InvalidAccessKeyId')
+    return new Error('Storage access denied. Check server credentials.');
+  if (code === 'SignatureDoesNotMatch')
+    return new Error('Storage authentication failed. Check server credentials.');
+  if (raw.includes('ECONNREFUSED') || raw.includes('ENOTFOUND') || raw.includes('fetch failed'))
+    return new Error('Cannot reach storage endpoint. Check server configuration.');
+  if (!process.env.B2_ENDPOINT)
+    return new Error('Storage endpoint is not configured. Check server configuration.');
+
+  return new Error('Storage error. Check server logs for details.');
 }
 
 async function s3AsyncBuffer(s3Path: string): Promise<AsyncBuffer> {
@@ -74,7 +77,8 @@ export async function sampleRows(s3Path: string, sampleSize = 20000): Promise<Ra
     return (await parquetReadObjects({ file, rowEnd: sampleSize })) as RawRow[];
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    throw new Error(`Failed to parse parquet file ${s3Path}: ${msg}`);
+    console.error(`[storage] failed to parse parquet ${s3Path}: ${msg}`);
+    throw new Error('Failed to parse data file. Check server logs for details.');
   }
 }
 

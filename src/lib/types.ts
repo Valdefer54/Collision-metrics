@@ -19,15 +19,14 @@ export interface ColumnConfig {
 export interface ChartConfig {
   id: string;
   title: string;
-  type: "histogram" | "scatter";
+  type: "histogram";
   xColumn: string;
-  yColumn?: string;
   xLabel: string;
   yLabel: string;
   bins?: number;
   xMin?: number;
   xMax?: number;
-  interpretation?: string; // physics explanation shown below each chart pair
+  interpretation?: string;
 }
 
 export interface DescriptiveStats {
@@ -52,17 +51,6 @@ export interface BinEntry {
   x: number;
   count: number;
   label: string;
-}
-
-export interface ScatterEntry {
-  x: number;
-  y: number;
-}
-
-export interface DatasetPayload {
-  measured: RawRow[];
-  mc: RawRow[];
-  error?: string;
 }
 
 export interface StreamChunk {

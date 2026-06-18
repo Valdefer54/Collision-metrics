@@ -124,7 +124,7 @@ export default function DatasetView({ dataset }: Props) {
             </svg>
             <div className="flex-1 min-w-0">
               <p className="text-red-300 font-semibold text-sm">Failed to load dataset "{dataset.name}"</p>
-              <p className="text-slate-300 text-xs mt-2 font-mono break-all whitespace-pre-wrap leading-relaxed border border-slate-700 bg-slate-900/60 rounded px-3 py-2">
+              <p className="text-slate-300 text-xs mt-2 leading-relaxed border border-slate-700 bg-slate-900/60 rounded px-3 py-2">
                 {data.error}
               </p>
               <button
@@ -141,7 +141,7 @@ export default function DatasetView({ dataset }: Props) {
   }
 
   if (!anyData) {
-    return <LoadingState progress={0} label="Connecting to S3 bucket..." />;
+    return <LoadingState progress={0} label="Loading dataset..." />;
   }
 
   return (
@@ -152,8 +152,7 @@ export default function DatasetView({ dataset }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
           </svg>
           <span>
-            <strong>Demo mode</strong> — B2 credentials not configured. Showing generated data with realistic physics distributions.
-            Fill in <code className="font-mono bg-amber-500/10 px-1 rounded">.env.local</code> to load real CMS data.
+            <strong>Demo mode</strong> — Credentials not configured. Showing generated data with realistic physics distributions.
           </span>
         </div>
       )}
@@ -166,7 +165,7 @@ export default function DatasetView({ dataset }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div className="flex items-center gap-2 px-4 py-2 bg-sky-500/10 border border-sky-500/30 rounded-lg">
           <span className="w-3 h-3 rounded-full bg-sky-400" />
-          <span className="text-sky-300 text-sm font-semibold">Real Data (CMS)</span>
+          <span className="text-sky-300 text-sm font-semibold">Real Data (ATLAS)</span>
           <span className="ml-auto text-slate-500 text-xs">{data.measured.length.toLocaleString()} events</span>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-lg">

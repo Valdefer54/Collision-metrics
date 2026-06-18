@@ -10,18 +10,15 @@ export default function Home() {
         <div className="relative max-w-5xl mx-auto px-6 py-20 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-300 text-xs font-medium mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-            CERN Open Data — CMS Detector
+            CERN Open Data viewer
           </div>
           <h1 className="text-5xl font-black tracking-tight mb-4">
             Collision<span className="text-blue-400">Metrics</span>
           </h1>
           <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
-            Interactive exploration of open LHC particle collision data.
-            Compare real CMS detector measurements against Monte Carlo simulations in real time.
+            Interactive exploration of open data from particle collisions.
           </p>
-          <p className="text-slate-600 text-sm mt-4">
-            20 000 events per sample · Live streaming from S3 · Histograms computed in the browser
-          </p>
+
         </div>
       </div>
 
@@ -48,7 +45,7 @@ export default function Home() {
           >
             CERN Open Data Portal
           </a>
-          {" · "}Visualized with Next.js, DuckDB, and Recharts
+          {" · "}
         </p>
       </footer>
     </main>

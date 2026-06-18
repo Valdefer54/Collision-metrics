@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "CollisionMetrics — CERN Open Data Explorer",
   description:
-    "Interactive exploration of LHC particle collision data. Compare real CMS detector measurements against Monte Carlo simulations.",
+    "Interactive exploration of LHC particle collision data.",
   openGraph: {
     title: "CollisionMetrics",
-    description: "CERN Open Data visualized in real time with DuckDB and Recharts",
+    description: "CERN Open Data visualized in real time",
     type: "website",
   },
 };

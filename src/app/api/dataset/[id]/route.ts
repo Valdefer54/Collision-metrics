@@ -59,8 +59,8 @@ export async function GET(
           controller.enqueue(encoder.encode(JSON.stringify({ type: "mc", rows: [], done: true }) + "\n"));
         }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : (typeof err === 'string' ? err : JSON.stringify(err) || "Unknown error");
         console.error(`[dataset/${id}] stream error:`, err);
+        const msg = err instanceof Error ? err.message : "Unknown error";
         controller.enqueue(encoder.encode(JSON.stringify({ type: "error", message: msg }) + "\n"));
       } finally {
         controller.close();
