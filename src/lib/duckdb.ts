@@ -24,13 +24,14 @@ function classifyS3Error(err: unknown, s3Path: string): Error {
     (err as { Code?: string })?.Code ??
     (err as { name?: string })?.name ??
     '';
+  const httpStatus = (err as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
 
   // Log full details server-side only
-  console.error(`[storage] error for ${s3Path} (${code || 'unknown'}): ${raw}`);
+  console.error(`[storage] error for ${s3Path} (${code || 'unknown'}, HTTP ${httpStatus ?? '?'}): ${raw}`);
 
-  if (code === 'NoSuchKey') return new Error('Data file not found in storage.');
+  if (code === 'NoSuchKey' || httpStatus === 404) return new Error('Data file not found in storage.');
   if (code === 'NoSuchBucket') return new Error('Storage bucket not found. Check server configuration.');
-  if (code === 'AccessDenied' || code === 'InvalidAccessKeyId')
+  if (code === 'AccessDenied' || code === 'InvalidAccessKeyId' || httpStatus === 403)
     return new Error('Storage access denied. Check server credentials.');
   if (code === 'SignatureDoesNotMatch')
     return new Error('Storage authentication failed. Check server credentials.');

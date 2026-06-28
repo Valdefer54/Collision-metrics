@@ -60,8 +60,12 @@ export async function GET(
         }
       } catch (err) {
         console.error(`[dataset/${id}] stream error:`, err);
-        const msg = err instanceof Error ? err.message : "Unknown error";
-        controller.enqueue(encoder.encode(JSON.stringify({ type: "error", message: msg }) + "\n"));
+        const raw = err instanceof Error ? err.message : "Unknown error";
+        // Only pass through already-sanitized storage messages; hide anything else
+        const safeMsg = /storage|data file|credentials|endpoint|server/i.test(raw)
+          ? raw
+          : "Unexpected server error. Check server logs for details.";
+        controller.enqueue(encoder.encode(JSON.stringify({ type: "error", message: safeMsg }) + "\n"));
       } finally {
         controller.close();
       }

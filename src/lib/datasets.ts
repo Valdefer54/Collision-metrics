@@ -1,6 +1,9 @@
 // ─── DATASET CONFIGURATION ───────────────────────────────────────────────────
-// Column names and ranges are derived from the real parquet files in the bucket.
-// All energies/momenta in GeV unless noted as MeV (largeRjet mass variables).
+// Column names are derived from the real parquet files in the Gold bucket.
+// 2lep/3lep/1largeRjet Gold files contain derived aggregate variables only
+// (individual lepton kinematics were dropped by the pipeline).
+// 4lep and gammagamma Gold files retain raw ntuple columns + derived quantities.
+// All energies in GeV unless noted.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { DatasetConfig } from "./types";
@@ -18,12 +21,11 @@ export const DATASETS: DatasetConfig[] = [
     mcPath: `s3://${BUCKET}/2lep/MC/Gold/Data.parquet`,
     columns: [
       { key: "invariant_mass", label: "Invariant Mass",  unit: "GeV/c²" },
-      { key: "lep_pt_0",       label: "pT lepton 1",     unit: "GeV/c"  },
-      { key: "lep_pt_1",       label: "pT lepton 2",     unit: "GeV/c"  },
-      { key: "lep_eta_0",      label: "η lepton 1",      unit: ""       },
-      { key: "lep_eta_1",      label: "η lepton 2",      unit: ""       },
-      { key: "lep_phi_0",      label: "φ lepton 1",      unit: "rad"    },
-      { key: "met_et",         label: "Missing ET",       unit: "GeV"   },
+      { key: "HT",             label: "H_T",             unit: "GeV"    },
+      { key: "delta_eta",      label: "Δη leptons",      unit: ""       },
+      { key: "delta_phi",      label: "Δφ leptons",      unit: "rad"    },
+      { key: "transverse_mass",label: "Transverse Mass", unit: "GeV/c²" },
+      { key: "met_significance",label: "MET significance",unit: ""      },
     ],
     charts: [
       {
@@ -33,22 +35,22 @@ export const DATASETS: DatasetConfig[] = [
         interpretation: "The sharp peak at ~91.2 GeV is the Z boson resonance, produced via Drell-Yan qq̄ → Z → ℓ⁺ℓ⁻. The agreement between data and MC in the peak position and width validates the lepton energy/momentum calibration.",
       },
       {
-        id: "pt1", title: "pT lepton 1", type: "histogram",
-        xColumn: "lep_pt_0", xLabel: "pT (GeV/c)", yLabel: "Events",
-        bins: 60, xMin: 0, xMax: 150,
-        interpretation: "The steeply falling pT spectrum is characteristic of Drell-Yan production. The turn-on at low pT reflects the single-lepton trigger threshold applied during data-taking.",
+        id: "ht", title: "H_T (Scalar pT Sum)", type: "histogram",
+        xColumn: "HT", xLabel: "H_T (GeV)", yLabel: "Events",
+        bins: 60, xMin: 0, xMax: 300,
+        interpretation: "H_T is the scalar sum of lepton transverse momenta. For Z→ℓℓ events it peaks near the Z mass (~91 GeV). The tail at high H_T reflects events where the Z is produced with significant boost from initial-state radiation.",
       },
       {
-        id: "eta1", title: "Pseudorapidity η lepton 1", type: "histogram",
-        xColumn: "lep_eta_0", xLabel: "η", yLabel: "Events",
-        bins: 50, xMin: -3, xMax: 3,
-        interpretation: "The pseudorapidity distribution reflects ATLAS detector acceptance. The slight dip near |η| ≈ 1.5 marks the barrel-endcap transition region where reconstruction efficiency drops.",
+        id: "deta", title: "Δη (Lepton Separation)", type: "histogram",
+        xColumn: "delta_eta", xLabel: "Δη", yLabel: "Events",
+        bins: 50, xMin: -5, xMax: 5,
+        interpretation: "The pseudorapidity difference Δη between the two leptons reflects the boost of the Z along the beam axis. A narrow Δη distribution indicates central Z production from symmetric quark-antiquark annihilation at the Z peak.",
       },
       {
-        id: "phi1", title: "Azimuthal angle φ lepton 1", type: "histogram",
-        xColumn: "lep_phi_0", xLabel: "φ (rad)", yLabel: "Events",
+        id: "dphi", title: "Δφ (Lepton Azimuthal Separation)", type: "histogram",
+        xColumn: "delta_phi", xLabel: "Δφ (rad)", yLabel: "Events",
         bins: 50, xMin: -3.2, xMax: 3.2,
-        interpretation: "An approximately uniform φ distribution is expected: the pp collision is azimuthally symmetric. Periodic dips would reveal inactive detector sectors or dead channels.",
+        interpretation: "The azimuthal angle difference Δφ between the leptons peaks near π for back-to-back Z→ℓℓ decays. Events with small Δφ arise when the Z acquires transverse momentum from initial-state radiation.",
       },
     ],
   },
@@ -61,12 +63,11 @@ export const DATASETS: DatasetConfig[] = [
     measuredPath: `s3://${BUCKET}/3lep/Data/Gold/Data.parquet`,
     mcPath: `s3://${BUCKET}/3lep/MC/Gold/Data.parquet`,
     columns: [
-      { key: "inv_mass_3l", label: "3-Lepton Invariant Mass", unit: "GeV/c²" },
-      { key: "best_mll_z",  label: "Z candidate mass",        unit: "GeV/c²" },
-      { key: "lep_pt_0",    label: "pT lepton 1",             unit: "GeV/c"  },
-      { key: "lep_pt_1",    label: "pT lepton 2",             unit: "GeV/c"  },
-      { key: "lep_pt_2",    label: "pT lepton 3",             unit: "GeV/c"  },
-      { key: "lep_eta_0",   label: "η lepton 1",              unit: ""       },
+      { key: "inv_mass_3l",   label: "3-Lepton Invariant Mass", unit: "GeV/c²" },
+      { key: "best_mll_z",    label: "Z candidate mass",        unit: "GeV/c²" },
+      { key: "lep_pt_W",      label: "pT lepton (W)",           unit: "GeV/c"  },
+      { key: "ht_3l",         label: "H_T (3 leptons)",         unit: "GeV"    },
+      { key: "min_dr_ll",     label: "min ΔR(ℓℓ)",              unit: ""       },
     ],
     charts: [
       {
@@ -82,16 +83,16 @@ export const DATASETS: DatasetConfig[] = [
         interpretation: "The best same-flavor opposite-sign lepton pair is selected as the Z candidate. The peak at ~91 GeV confirms Z+lepton topology (WZ → 3ℓ), the dominant SM background in this channel.",
       },
       {
-        id: "pt1", title: "pT lepton 1", type: "histogram",
-        xColumn: "lep_pt_0", xLabel: "pT (GeV/c)", yLabel: "Events",
+        id: "ptW", title: "pT of W-lepton Candidate", type: "histogram",
+        xColumn: "lep_pt_W", xLabel: "pT (GeV/c)", yLabel: "Events",
         bins: 60, xMin: 0, xMax: 150,
-        interpretation: "The leading lepton carries most of the event pT. The harder spectrum compared to the di-lepton channel reflects the higher invariant mass of the tri-lepton system.",
+        interpretation: "The transverse momentum of the lepton assigned to the W boson candidate. The spectrum peaks at ~40 GeV, reflecting the W mass and the V-A structure of W→ℓν decay.",
       },
       {
-        id: "eta1", title: "Pseudorapidity η lepton 1", type: "histogram",
-        xColumn: "lep_eta_0", xLabel: "η", yLabel: "Events",
-        bins: 50, xMin: -3, xMax: 3,
-        interpretation: "The η distribution of the leading lepton may show a slightly more central preference due to the higher Q² of the hard process compared to inclusive Z production.",
+        id: "ht", title: "H_T (3 Leptons)", type: "histogram",
+        xColumn: "ht_3l", xLabel: "H_T (GeV)", yLabel: "Events",
+        bins: 60, xMin: 0, xMax: 500,
+        interpretation: "Scalar sum of the three lepton pTs. For WZ production it peaks around 100–200 GeV. An excess at high H_T could indicate BSM processes such as SUSY or heavy resonances decaying to multi-lepton final states.",
       },
     ],
   },
@@ -104,37 +105,37 @@ export const DATASETS: DatasetConfig[] = [
     measuredPath: `s3://${BUCKET}/1largeRjet1lep/Data/Gold/Data.parquet`,
     mcPath: `s3://${BUCKET}/1largeRjet1lep/MC/Gold/Data.parquet`,
     columns: [
-      { key: "largeRjet_pt_0",  label: "Large-R jet pT",   unit: "GeV/c"   },
-      { key: "large_jet_mass",  label: "Large-R jet mass",  unit: "MeV/c²"  },
-      { key: "largeRjet_eta_0", label: "Jet η",             unit: ""        },
-      { key: "lep_pt_0",        label: "Lepton pT",         unit: "GeV/c"   },
-      { key: "met_et",          label: "Missing ET",        unit: "GeV"     },
-      { key: "large_jet_tau32", label: "τ₃₂ substructure",  unit: ""        },
+      { key: "ht_boosted",        label: "H_T (boosted)",       unit: "GeV"    },
+      { key: "large_jet_mass",    label: "Large-R jet mass",    unit: "GeV/c²" },
+      { key: "large_jet_tau32",   label: "τ₃₂ substructure",   unit: ""       },
+      { key: "mt_w",              label: "W transverse mass",   unit: "GeV/c²" },
+      { key: "delta_R_lep_fatjet",label: "ΔR(ℓ, jet)",         unit: ""       },
+      { key: "met_significance",  label: "MET significance",    unit: ""       },
     ],
     charts: [
       {
-        id: "jetpt", title: "Large-R Jet pT", type: "histogram",
-        xColumn: "largeRjet_pt_0", xLabel: "pT (GeV/c)", yLabel: "Events",
-        bins: 60, xMin: 0, xMax: 600,
-        interpretation: "The large-R jet pT spectrum falls steeply following a power law. Boosted topologies require pT ≳ 200 GeV so that the decay products of a W/Z/top fit within the large cone (typically R=1.0 in ATLAS).",
+        id: "ht", title: "H_T (Boosted)", type: "histogram",
+        xColumn: "ht_boosted", xLabel: "H_T (GeV)", yLabel: "Events",
+        bins: 60, xMin: 0, xMax: 1000,
+        interpretation: "H_T in boosted events reflects the energy scale of the hard scattering. Boosted topologies require H_T ≳ 300 GeV so that massive particles are produced with enough pT to have collimated decay products inside a large-R jet.",
       },
       {
         id: "jetmass", title: "Large-R Jet Mass", type: "histogram",
-        xColumn: "large_jet_mass", xLabel: "M_jet (MeV/c²)", yLabel: "Events",
-        bins: 60, xMin: 0, xMax: 250000,
-        interpretation: "The jet mass is stored in MeV (divide by 1000 for GeV). QCD jets peak at low mass (~10–30 GeV = 10000–30000 MeV). Peaks near 80000 or 91000 MeV would indicate boosted W or Z bosons reconstructed as a single fat jet.",
+        xColumn: "large_jet_mass", xLabel: "M_jet (GeV/c²)", yLabel: "Events",
+        bins: 60, xMin: 0, xMax: 250,
+        interpretation: "QCD jets peak at low mass (~10–30 GeV). Peaks near 80 GeV or 91 GeV indicate boosted W or Z bosons reconstructed as a single fat jet. A shoulder near 173 GeV would signal top quarks in the fully-hadronic or semi-leptonic boosted regime.",
       },
       {
-        id: "jeteta", title: "Jet Pseudorapidity η", type: "histogram",
-        xColumn: "largeRjet_eta_0", xLabel: "η", yLabel: "Events",
-        bins: 50, xMin: -3, xMax: 3,
-        interpretation: "Central large-R jets (|η| < 2.0) dominate, as expected for high-pT hard-scattered objects. The acceptance cut reflects the hadronic calorimeter coverage in ATLAS.",
+        id: "dr", title: "ΔR(lepton, large-R jet)", type: "histogram",
+        xColumn: "delta_R_lep_fatjet", xLabel: "ΔR", yLabel: "Events",
+        bins: 50, xMin: 0, xMax: 6,
+        interpretation: "The angular separation between the isolated lepton and the large-R jet. In semi-leptonic top events (t→Wb→ℓνb), the lepton from W and the fat jet (capturing the b or full hadronic top) are well-separated (ΔR > 2). A minimum ΔR cut is applied to suppress overlap.",
       },
       {
-        id: "met", title: "Missing Transverse Energy", type: "histogram",
-        xColumn: "met_et", xLabel: "E_T^miss (GeV)", yLabel: "Events",
+        id: "mtw", title: "W Transverse Mass", type: "histogram",
+        xColumn: "mt_w", xLabel: "m_T^W (GeV/c²)", yLabel: "Events",
         bins: 60, xMin: 0, xMax: 300,
-        interpretation: "Missing ET indicates the presence of neutrinos from W→ℓν decay. High MET events are enriched in semi-leptonic top quark decays (t→Wb→ℓνb) reconstructed in the boosted regime.",
+        interpretation: "Transverse mass of the W candidate (lepton + MET). For W→ℓν decays, m_T peaks below the W mass (~80 GeV) due to the unmeasured neutrino longitudinal momentum. This distribution directly tests the W production model.",
       },
     ],
   },

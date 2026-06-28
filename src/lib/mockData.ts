@@ -28,33 +28,31 @@ function generateRow(id: string): RawRow {
         : uniform(2, 200);
       return {
         invariant_mass,
-        lep_pt_0:  Math.abs(gaussian(40, 15)),
-        lep_pt_1:  Math.abs(gaussian(25, 12)),
-        lep_eta_0: gaussian(0, 1.2),
-        lep_eta_1: gaussian(0, 1.2),
-        lep_phi_0: uniform(-Math.PI, Math.PI),
-        met_et:    Math.abs(gaussian(20, 15)),
+        HT:              Math.abs(gaussian(90, 30)),
+        delta_eta:       gaussian(0, 1.5),
+        delta_phi:       uniform(-Math.PI, Math.PI),
+        transverse_mass: Math.abs(gaussian(60, 25)),
+        met_significance: Math.abs(gaussian(3, 2)),
       };
     }
     case "3leptons": {
       const best_mll_z = Math.abs(gaussian(91.2, 5));
       return {
-        inv_mass_3l: Math.abs(gaussian(120, 40)),
+        inv_mass_3l:  Math.abs(gaussian(120, 40)),
         best_mll_z,
-        lep_pt_0:    Math.abs(gaussian(50, 20)),
-        lep_pt_1:    Math.abs(gaussian(30, 15)),
-        lep_pt_2:    Math.abs(gaussian(20, 10)),
-        lep_eta_0:   gaussian(0, 1.2),
+        lep_pt_W:     Math.abs(gaussian(40, 15)),
+        ht_3l:        Math.abs(gaussian(180, 60)),
+        min_dr_ll:    Math.abs(gaussian(1.5, 0.8)),
       };
     }
     case "1largerjet": {
       return {
-        largeRjet_pt_0:  Math.abs(gaussian(300, 100)),
-        // large_jet_mass is stored in MeV in real data
-        large_jet_mass:  Math.abs(gaussian(60000, 30000)),
-        largeRjet_eta_0: gaussian(0, 1.0),
-        lep_pt_0:        Math.abs(gaussian(80, 30)),
-        met_et:          Math.abs(gaussian(60, 40)),
+        ht_boosted:         Math.abs(gaussian(500, 150)),
+        large_jet_mass:     Math.abs(gaussian(80, 40)),
+        large_jet_tau32:    Math.min(1, Math.abs(gaussian(0.6, 0.2))),
+        mt_w:               Math.abs(gaussian(60, 25)),
+        delta_R_lep_fatjet: Math.abs(gaussian(3.5, 1.0)),
+        met_significance:   Math.abs(gaussian(4, 2)),
       };
     }
     case "gammagamma": {
@@ -84,10 +82,6 @@ function generateRow(id: string): RawRow {
       };
     }
     default:
-      return {
-        invariant_mass: uniform(0, 200),
-        lep_pt_0:       uniform(0, 100),
-        lep_eta_0:      gaussian(0, 1),
-      };
+      return { invariant_mass: uniform(0, 200) };
   }
 }
